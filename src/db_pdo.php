@@ -73,12 +73,12 @@ class db_pdo
     // ******************
     public function connect() {
         try {
-            $this->conn = new PDO('mysql:host=' . self::DB_SERVERNAME .';dbname=' . self::DB_DBNAME . ';charset=' . self::DB_ENCODING, self::DB_USERNAME, self::DB_PASSWORD);
+            $this->conn = new \PDO('mysql:host=' . self::DB_SERVERNAME .';dbname=' . self::DB_DBNAME . ';charset=' . self::DB_ENCODING, self::DB_USERNAME, self::DB_PASSWORD);
         } catch (Exception $e) {
             die('Error: ' . $e->getMessage());
         }
 
-        $this->conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+        $this->conn->setAttribute(\PDO::ATTR_EMULATE_PREPARES, FALSE);
     }
 
     // ***********************
@@ -107,7 +107,7 @@ class db_pdo
             echo 'Query seems correct but error executing it: ' . $query;
         }
 
-        $result->setFetchMode(PDO::FETCH_ASSOC);
+        $result->setFetchMode(\PDO::FETCH_ASSOC);
         return $result->fetch();
     }
 
@@ -129,7 +129,7 @@ class db_pdo
             die();
         }
 
-        $result->setFetchMode(PDO::FETCH_ASSOC);
+        $result->setFetchMode(\PDO::FETCH_ASSOC);
         return $result->fetchAll();
     }
 
@@ -168,9 +168,9 @@ class db_pdo
 
         foreach ($values as $field_name => $value) {
             if ($array_found_types[$cpt_type] == 'int') {
-                $result->bindValue(':' . $field_name, $value, PDO::PARAM_INT);
+                $result->bindValue(':' . $field_name, $value, \PDO::PARAM_INT);
             } else {
-                $result->bindValue(':' . $field_name, $value, PDO::PARAM_STR);
+                $result->bindValue(':' . $field_name, $value, \PDO::PARAM_STR);
             }
 
             $cpt_type++;
@@ -219,9 +219,9 @@ class db_pdo
 
         foreach ($values as $field_name => $value) {
             if ($array_found_types[$cpt_type] == 'int') {
-                $result->bindValue(':f_' . $field_name, $value, PDO::PARAM_INT);
+                $result->bindValue(':f_' . $field_name, $value, \PDO::PARAM_INT);
             } else {
-                $result->bindValue(':f_' . $field_name, $value, PDO::PARAM_STR);
+                $result->bindValue(':f_' . $field_name, $value, \PDO::PARAM_STR);
             }
 
             $cpt_type++;
@@ -232,9 +232,9 @@ class db_pdo
         // ***********************
         foreach ($params as $param_name => $array_value) {
             if ($array_value[1] == 'int') {
-                $result->bindValue($param_name, $array_value[0], PDO::PARAM_INT);
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_INT);
             } else {
-                $result->bindValue($param_name, $array_value[0], PDO::PARAM_STR);
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
             }
         }
 
@@ -261,9 +261,9 @@ class db_pdo
         // ***********************
         foreach ($params as $param_name => $array_value) {
             if ($array_value[1] == 'int') {
-                $result->bindValue($param_name, $array_value[0], PDO::PARAM_INT);
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_INT);
             } else {
-                $result->bindValue($param_name, $array_value[0], PDO::PARAM_STR);
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
             }
         }
 
@@ -284,7 +284,7 @@ class db_pdo
         $result = $conn->prepare("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" . self::DB_DBNAME . "' AND TABLE_NAME = '" . $table . "'");
         $result->execute();
 
-        $result->setFetchMode(PDO::FETCH_ASSOC);
+        $result->setFetchMode(\PDO::FETCH_ASSOC);
         $response_columns = $result->fetchAll();
 
         $array_found_types = [];
