@@ -93,7 +93,7 @@ class db_pdo
     // *****************
     // * Returns 1 row *
     // *****************
-    public function getOne($query) {
+    public function getOne($query, $params = array()) {
         $result = $this->conn->prepare($query);
 
         if (!$result) {
@@ -103,6 +103,17 @@ class db_pdo
             die();
         }
 
+        // ***********************
+        // * Binding the options *
+        // ***********************
+        foreach ($params as $param_name => $array_value) {
+            if ($array_value[1] == 'int') {
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_INT);
+            } else {
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
+            }
+        }
+        
         if (!$result->execute()) {
             echo 'Query seems correct but error executing it: ' . $query;
         }
@@ -114,7 +125,7 @@ class db_pdo
     // ************************
     // * Returns several rows *
     // ************************
-    public function getMany($query) {
+    public function getMany($query, $params = array()) {
         $result = $this->conn->prepare($query);
 
         if (!$result) {
@@ -124,6 +135,17 @@ class db_pdo
             die();
         }
 
+        // ***********************
+        // * Binding the options *
+        // ***********************
+        foreach ($params as $param_name => $array_value) {
+            if ($array_value[1] == 'int') {
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_INT);
+            } else {
+                $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
+            }
+        }
+        
         if (!$result->execute()) {
             echo 'Query seems correct but error executing it: ' . $query;
             die();
