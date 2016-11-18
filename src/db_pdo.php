@@ -35,6 +35,8 @@
 // * Delete 1 row:                                                                                                         *
 // * $result = $bdd->delete('logs_jobserve_submit', "WHERE id = :id", array(':id' => array(15, 'int')));                   *
 // *************************************************************************************************************************
+namespace dleger\db_pdo;
+
 class db_pdo
 {
     // *******************************
