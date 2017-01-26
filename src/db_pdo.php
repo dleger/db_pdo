@@ -74,6 +74,7 @@ class db_pdo
     public function connect() {
         try {
             $this->conn = new \PDO('mysql:host=' . self::DB_SERVERNAME .';dbname=' . self::DB_DBNAME . ';charset=' . self::DB_ENCODING, self::DB_USERNAME, self::DB_PASSWORD);
+            $this->conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         } catch (Exception $e) {
             die('Error: ' . $e->getMessage());
         }
@@ -200,6 +201,7 @@ class db_pdo
 
         if (!$result->execute()) {
             echo 'Error executing the query: ' . $query;
+            error_log('Error executing the query: ' . $query . implode(' - ', $result->errorInfo()));
             die();
         }
 
@@ -264,6 +266,7 @@ class db_pdo
 
         if (!$check) {
             echo 'Error executing the query: ' . $query;
+            error_log('Error executing the query: ' . $query . implode(' - ', $result->errorInfo()));
             die();
         }
 
