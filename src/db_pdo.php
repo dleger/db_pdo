@@ -97,13 +97,6 @@ class db_pdo
     public function getOne($query, $params = array()) {
         $result = $this->conn->prepare($query);
 
-        if (!$result) {
-            echo 'PDO error: ' . "\n";
-            print_r($this->conn->errorInfo());
-            echo "\n" . 'Query was: ' . $query;
-            die();
-        }
-
         // ***********************
         // * Binding the options *
         // ***********************
@@ -114,12 +107,22 @@ class db_pdo
                 $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
             }
         }
-        
+
+        if (!$result) {
+            echo 'PDO error: ' . "\n";
+            print_r($this->conn->errorInfo());
+            echo "\n" . 'Query was: ' . $query;
+            die();
+        }
+
         if (!$result->execute()) {
             echo 'Query seems correct but error executing it: ' . $query;
+            error_log('Error executing the query: ' . $query . implode(' - ', $result->errorInfo()));
+            die();
         }
 
         $result->setFetchMode(\PDO::FETCH_ASSOC);
+
         return $result->fetch();
     }
 
@@ -146,13 +149,15 @@ class db_pdo
                 $result->bindValue($param_name, $array_value[0], \PDO::PARAM_STR);
             }
         }
-        
+
         if (!$result->execute()) {
             echo 'Query seems correct but error executing it: ' . $query;
+            error_log('Error executing the query: ' . $query . implode(' - ', $result->errorInfo()));
             die();
         }
 
         $result->setFetchMode(\PDO::FETCH_ASSOC);
+
         return $result->fetchAll();
     }
 
@@ -163,7 +168,7 @@ class db_pdo
         // ***********************
         // * Get all field types *
         // ***********************
-        $array_found_types = self::getParamTypes($this->conn, $table);
+        $array_found_types = self::getParamTypes($this->conn, $table, $values);
 
         // **********************
         // * Building the Query *
@@ -191,9 +196,13 @@ class db_pdo
 
         foreach ($values as $field_name => $value) {
             if ($array_found_types[$cpt_type] == 'int') {
-                $result->bindValue(':' . $field_name, $value, \PDO::PARAM_INT);
+                if ($value === NULL) {
+                    $result->bindValue(':' . $field_name, NULL, \PDO::PARAM_INT);
+                } else {
+                    $result->bindValue(':' . $field_name, (int)$value, \PDO::PARAM_INT);
+                }
             } else {
-                $result->bindValue(':' . $field_name, $value, \PDO::PARAM_STR);
+                $result->bindValue(':' . $field_name, (string) $value, \PDO::PARAM_STR);
             }
 
             $cpt_type++;
@@ -215,7 +224,7 @@ class db_pdo
         // ***********************
         // * Get all field types *
         // ***********************
-        $array_found_types = self::getParamTypes($this->conn, $table);
+        $array_found_types = self::getParamTypes($this->conn, $table, $values);
 
         // **********************
         // * Building the Query *
@@ -243,9 +252,13 @@ class db_pdo
 
         foreach ($values as $field_name => $value) {
             if ($array_found_types[$cpt_type] == 'int') {
-                $result->bindValue(':f_' . $field_name, $value, \PDO::PARAM_INT);
+                if ($value === NULL) {
+                    $result->bindValue(':f_' . $field_name, NULL, \PDO::PARAM_INT);
+                } else {
+                    $result->bindValue(':f_' . $field_name, (int) $value, \PDO::PARAM_INT);
+                }
             } else {
-                $result->bindValue(':f_' . $field_name, $value, \PDO::PARAM_STR);
+                $result->bindValue(':f_' . $field_name, (string) $value, \PDO::PARAM_STR);
             }
 
             $cpt_type++;
@@ -296,6 +309,7 @@ class db_pdo
 
         if (!$check) {
             echo 'Error executing the query: ' . $query;
+            error_log('Error executing the query: ' . $query . implode(' - ', $result->errorInfo()));
             die();
         }
 
@@ -305,7 +319,7 @@ class db_pdo
     // ***************************
     // * Getting All Param Types *
     // ***************************
-    private function getParamTypes($conn, $table) {
+    private function getParamTypes($conn, $table, $values) {
         $result = $conn->prepare("SELECT COLUMN_NAME, DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = '" . self::DB_DBNAME . "' AND TABLE_NAME = '" . $table . "'");
         $result->execute();
 
@@ -313,9 +327,15 @@ class db_pdo
         $response_columns = $result->fetchAll();
 
         $array_found_types = [];
+        $array_ids_datatypes = [];
+        $all_keys = array_keys($values);
 
         for ($cpt = 0; $cpt < count($response_columns); $cpt++) {
-            $array_found_types[$cpt] = $response_columns[$cpt]['DATA_TYPE'];
+            $array_ids_datatypes[$response_columns[$cpt]['COLUMN_NAME']] = $response_columns[$cpt]['DATA_TYPE'];
+        }
+
+        for ($cpt_keys = 0; $cpt_keys < count($all_keys); $cpt_keys++) {
+            $array_found_types[$cpt_keys] = $array_ids_datatypes[$all_keys[$cpt_keys]];
         }
 
         return $array_found_types;
