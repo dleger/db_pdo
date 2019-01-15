@@ -123,7 +123,13 @@ class db_pdo
 
         $result->setFetchMode(\PDO::FETCH_ASSOC);
 
-        return $result->fetch();
+        $record = $result->fetch();
+
+        if ($record == NULL || $record == FALSE) {
+            return array();
+        } else {
+            return $record;
+        }
     }
 
     // ************************
@@ -158,7 +164,13 @@ class db_pdo
 
         $result->setFetchMode(\PDO::FETCH_ASSOC);
 
-        return $result->fetchAll();
+        $record = $result->fetchAll();
+
+        if ($record == NULL || $record == FALSE) {
+            return array();
+        } else {
+            return $record;
+        }
     }
 
     // *********************************************
